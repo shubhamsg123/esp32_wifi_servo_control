@@ -1,48 +1,158 @@
+# ESP32 WiFi Servo Controller 🎮
 
-## ESP-Drone
+Control 4 MG995 servo motors wirelessly via WiFi using the CRTP protocol. Based on ESP-Drone firmware, modified for direct servo control.
 
-* [中文](./README_cn.md)
+## 📋 What This Does
 
-### Introduction
+- Connects to ESP32 via WiFi
+- Sends joystick commands (thrust, roll, pitch, yaw)
+- Each command controls one servo motor directly
+- No drone stabilization - pure servo control!
 
-**ESP-Drone** is an open source solution based on Espressif ESP32/ESP32-S2/ESP32-S3 Wi-Fi chip, which can be controlled by a mobile APP or gamepad over **Wi-Fi** connection. ESP-Drone comes with **simple hardware**, **clear and extensible code architecture**, and therefore this project can be used in **STEAM education** and other fields. The main code is ported from **Crazyflie** open source project with **GPL3.0** protocol.
+## 🔧 Hardware Required
 
-> Currently support ESP32、ESP32S2、ESP32S3, please using ESP-IDF [release/v4.4](https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32s2/get-started/index.html) branch as your develop environment
+| Component | Quantity | Notes |
+|-----------|----------|-------|
+| ESP32 DevKit | 1 | Any ESP32 board |
+| MG995 Servo | 4 | Continuous rotation servos |
+| 5V Power Supply | 1 | 2A+ for servos (don't power from ESP32!) |
+| Jumper Wires | Several | For connections |
 
-![ESP-Drone](./docs/_static/espdrone_s2_v1_2_2.png)
+## 📌 Wiring Diagram
 
-For more information, please check the sections below:
-* **Getting Started**: [Getting Started](https://docs.espressif.com/projects/espressif-esp-drone/zh_CN/latest/gettingstarted.html)
-* **Hardware Schematic**：[Hardware](https://docs.espressif.com/projects/espressif-esp-drone/zh_CN/latest/_static/ESP32_S2_Drone_V1_2/SCH_Mainboard_ESP32_S2_Drone_V1_2.pdf)
-* **iOS APP Source code**: [ESP-Drone-iOS](https://github.com/EspressifApps/ESP-Drone-iOS)
-* **Android APP Source code**: [ESP-Drone-Android](https://github.com/EspressifApps/ESP-Drone-Android)
+```
+ESP32          Servo
+------         ------
+GPIO 4   -->   Servo 1 Signal (Thrust)
+GPIO 18  -->   Servo 2 Signal (Roll)
+GPIO 19  -->   Servo 3 Signal (Pitch)
+GPIO 25  -->   Servo 4 Signal (Yaw)
+GND      -->   All Servo GND
+              (5V from external power supply to servos)
+```
 
-### Features
+> ⚠️ **Important**: Power servos from external 5V supply, NOT from ESP32's 5V pin!
 
-1. Stabilize Mode
-2. Height-hold Mode
-3. Position-hold Mode
-4. APP Control
-5. CFclient Supported
+## 🎯 Control Mapping
 
-Note: to implement Height-hold/Position-hold mode, extension boards are needed. For more information, see Hardware Reference. 
+| Joystick Input | Servo | PWM Range |
+|----------------|-------|-----------|
+| Thrust (0-100%) | Motor 1 | 1500µs → 2000µs |
+| Roll (±45°) | Motor 2 | 1000µs → 2000µs |
+| Pitch (±45°) | Motor 3 | 1000µs → 2000µs |
+| Yaw (±200°/s) | Motor 4 | 1000µs → 2000µs |
 
-### Third Party Copyrighted Code
+**Pulse Width Reference:**
+- `1000µs` = Full speed counter-clockwise
+- `1500µs` = Stop (neutral)
+- `2000µs` = Full speed clockwise
 
-Additional third party copyrighted code is included under the following licenses.
+## 🚀 Quick Start
 
-| Component | License | Origin |Commit ID |
-| :---:  | :---: | :---: |:---: |
-| core/crazyflie | GPL3.0  |[Crazyflie](https://github.com/bitcraze/crazyflie-firmware) |tag_2021_01 b448553|
-| lib/dsp_lib |  | [esp32-lin](https://github.com/whyengineer/esp32-lin/tree/master/components/dsp_lib) |6fa39f4c|
+### 1. Install ESP-IDF (v5.0+)
 
-### Support Policy
+```bash
+# Clone ESP-IDF
+git clone -b v5.0.7 --recursive https://github.com/espressif/esp-idf.git ~/esp/esp-idf
 
-From December 2022, we will offer limited support on this project, but Pull Request is still welcomed!
+# Install
+cd ~/esp/esp-idf
+./install.sh
 
-### THANKS
+# Activate (run this in every new terminal)
+source ~/esp/esp-idf/export.sh
+```
 
-1. Thanks to Bitcraze for the great [Crazyflie project](https://www.bitcraze.io/%20).
-2. Thanks to Espressif for the powerful [ESP-IDF framework](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s2/get-started/index.html).
-3. Thanks to WhyEngineer for the useful [ESP-DSP lib](https://github.com/whyengineer/esp32-lin/tree/master/components/dsp_lib).
+### 2. Clone This Repository
 
+```bash
+git clone https://github.com/shubhamsg123/esp32_wifi_servo_control.git
+cd esp32_wifi_servo_control
+```
+
+### 3. Configure GPIO Pins (Optional)
+
+```bash
+idf.py menuconfig
+```
+Navigate to: `ESPDrone Config → motors config` to change pin assignments.
+
+### 4. Build & Flash
+
+```bash
+idf.py build
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+> **Permission Error?** Run: `sudo chmod 666 /dev/ttyUSB0`
+
+### 5. Connect to WiFi
+
+1. Look for WiFi network: `ESP-Drone_XXXX`
+2. Connect with password: (check serial output)
+3. IP: `192.168.43.42`
+
+## 📱 Control Apps
+
+### Option 1: ESP-Drone App (Android/iOS)
+- Download from app stores
+- Connect to ESP-Drone WiFi
+- Use joysticks to control
+
+### Option 2: Python Script (PC)
+```python
+# Install cflib
+pip install cflib
+
+# Control script
+from cflib.crazyflie import Crazyflie
+
+cf = Crazyflie()
+cf.open_link("wifi://192.168.43.42")
+
+# Send command (roll, pitch, yaw, thrust)
+cf.commander.send_setpoint(0, 0, 0, 30000)  # Motor 1 at ~50%
+```
+
+### Option 3: Custom UDP
+Send CRTP packets directly to `192.168.43.42:2390`
+
+## 📁 Key Files Modified
+
+| File | Purpose |
+|------|---------|
+| `components/drivers/general/motors/motors.c` | 50Hz PWM for servos |
+| `components/core/crazyflie/modules/src/servo_controller.c` | CRTP → Servo mapping |
+| `components/core/crazyflie/modules/src/system.c` | Init servo controller |
+
+## 🔍 Troubleshooting
+
+### Servos not moving?
+- Check 5V power supply to servos
+- Verify GPIO connections
+- Check serial monitor for errors
+
+### WiFi not appearing?
+- Wait 30 seconds after power on
+- Check serial monitor: should show "WiFi AP started"
+
+### Build errors?
+```bash
+idf.py fullclean
+idf.py build
+```
+
+### Serial port permission denied?
+```bash
+sudo usermod -a -G dialout $USER
+# Then logout and login again
+```
+
+## 📜 License
+
+GPL-3.0 (inherited from ESP-Drone project)
+
+## 🙏 Credits
+
+- Based on [ESP-Drone](https://github.com/espressif/esp-drone) by Espressif
+- CRTP protocol from [Crazyflie](https://www.bitcraze.io/)
