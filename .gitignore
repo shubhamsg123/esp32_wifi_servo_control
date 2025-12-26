@@ -1,0 +1,18 @@
+# Build output
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ESP-IDF
+sdkconfig.old
+
+# Mac
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
