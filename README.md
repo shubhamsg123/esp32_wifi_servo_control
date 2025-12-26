@@ -77,7 +77,23 @@ idf.py menuconfig
 ```
 Navigate to: `ESPDrone Config → motors config` to change pin assignments.
 
-### 4. Build & Flash
+### 4. Configure WiFi (Optional)
+
+**Default WiFi Settings:**
+- **SSID**: `ESP-DRONE_XXXX` (XXXX = last 6 digits of MAC address)
+- **Password**: `12345678`
+
+**To change WiFi credentials**, edit `components/drivers/general/wifi/wifi_esp32.c`:
+
+```c
+// Line 28-29
+static char WIFI_SSID[32] = "MY_CUSTOM_SSID";
+static char WIFI_PWD[64] = "my_new_password";
+```
+
+> **Note**: Password must be at least 8 characters for WPA2.
+
+### 5. Build & Flash
 
 ```bash
 idf.py build
