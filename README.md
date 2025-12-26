@@ -110,14 +110,35 @@ idf.py -p /dev/ttyUSB0 flash monitor
 
 ## 📱 Control Apps
 
-### Option 1: ESP-Drone App (Android/iOS)
-- Download from app stores
-- Connect to ESP-Drone WiFi
-- Use joysticks to control
+### Option 1: ESP-Drone Mobile App
 
-### Option 2: Python Script (PC)
+| Platform | Source Code |
+|----------|-------------|
+| Android | [ESP-Drone-Android](https://github.com/EspressifApps/ESP-Drone-Android) |
+| iOS | [ESP-Drone-iOS](https://github.com/EspressifApps/ESP-Drone-iOS) |
+
+> **Note**: Apps are not on Play Store/App Store. Build from source or download APK from releases.
+
+**Usage:**
+1. Connect phone to `ESP-DRONE_XXXX` WiFi
+2. Open ESP-Drone app
+3. Use joysticks to control servos
+
+### Option 2: cfclient (PC)
+
+Use the Crazyflie Python client with WiFi support:
+
+```bash
+# Install cfclient with WiFi support
+pip install cfclient
+# Or use this fork for better WiFi support:
+# https://github.com/leeebo/crazyflie-clients-python
+```
+
+### Option 3: Python cflib
+
 ```python
-# Install cflib
+# Install
 pip install cflib
 
 # Control script
@@ -130,7 +151,7 @@ cf.open_link("wifi://192.168.43.42")
 cf.commander.send_setpoint(0, 0, 0, 30000)  # Motor 1 at ~50%
 ```
 
-### Option 3: Custom UDP
+### Option 4: Custom UDP
 Send CRTP packets directly to `192.168.43.42:2390`
 
 ## 📁 Key Files Modified
