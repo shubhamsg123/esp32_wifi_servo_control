@@ -70,12 +70,26 @@ git clone https://github.com/shubhamsg123/esp32_wifi_servo_control.git
 cd esp32_wifi_servo_control
 ```
 
-### 3. Configure GPIO Pins (Optional)
+### 3. Configure Motor Pins (Optional)
 
+**Option A: Using menuconfig (GUI)**
 ```bash
-idf.py menuconfig
+# Open external terminal with menuconfig
+gnome-terminal -- bash -c "source ~/esp/esp-idf/export.sh && cd /home/shubham/Downloads/esp-drone-master && idf.py menuconfig"
 ```
 Navigate to: `ESPDrone Config → motors config` to change pin assignments.
+
+**Option B: Edit sdkconfig directly**
+
+Open `sdkconfig` file and modify these lines:
+```
+CONFIG_MOTOR01_PIN=4
+CONFIG_MOTOR02_PIN=18
+CONFIG_MOTOR03_PIN=19
+CONFIG_MOTOR04_PIN=25
+```
+
+> **Note**: After changing sdkconfig, run `idf.py build` to apply changes.
 
 ### 4. Configure WiFi (Optional)
 
