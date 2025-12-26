@@ -2,12 +2,17 @@
 
 Control 4 MG995 servo motors wirelessly via WiFi using the CRTP protocol. Based on ESP-Drone firmware, modified for direct servo control.
 
+**Use your phone as a remote control!** Download the ESP-Drone app:
+- 📱 **Android**: [ESP-Drone-Android](https://github.com/EspressifApps/ESP-Drone-Android)
+- 🍎 **iOS**: [ESP-Drone-iOS](https://github.com/EspressifApps/ESP-Drone-iOS)
+
 ## 📋 What This Does
 
-- Connects to ESP32 via WiFi
-- Sends joystick commands (thrust, roll, pitch, yaw)
-- Each command controls one servo motor directly
-- No drone stabilization - pure servo control!
+- Control servos wirelessly from Android/iOS app or PC
+- Works with ESP-Drone mobile app (joystick → servo control)
+- Each joystick axis controls one servo directly
+- Use as switches, actuators, or continuous rotation servos
+- No drone stabilization - pure direct servo control!
 
 ## 🔧 Hardware Required
 
